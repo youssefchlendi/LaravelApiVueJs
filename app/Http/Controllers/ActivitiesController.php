@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Activity;
 use App\Models\Item;
+use App\Models\Tags;
 use Illuminate\Http\Request;
 
 class ActivitiesController extends Controller
@@ -106,6 +107,16 @@ class ActivitiesController extends Controller
             'data' => $activities
         ], 200);
     }
+
+    public function showTags()
+    {
+            $tags = Tags::all();
+
+        return response()->json([
+            'data' => $tags
+        ], 200);
+    }
+
 
     public function activityUpdate(Request $request, $activity_id)
     {
