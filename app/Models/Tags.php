@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Tags extends Model
 {
-    protected $table="activities";
+    protected $table="tags";
     protected $primaryKey="id";
     protected $fillable=['tag_name'];
 
