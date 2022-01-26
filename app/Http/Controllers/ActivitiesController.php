@@ -89,6 +89,7 @@ class ActivitiesController extends Controller
     {
         $search = $request->input('search')?$request->input('search'):'';
         $order = $request->input('order')?$request->input('order'):'created_at';
+        $filter = $request->input('filter');
         if($search == ''||$request->input('search') == null){
             $activities = Activity::with('items')
                 ->with('tags')
@@ -231,8 +232,6 @@ class ActivitiesController extends Controller
 
             $activity->tags()->attach($tag_id);
         }
-        
-
     }
 
     public function activityItemDestroy($activity_id, $item_id)
