@@ -90,25 +90,46 @@ class ActivitiesController extends Controller
     {
         $search = $request->input('search')?$request->input('search'):'';
         $order = $request->input('order')?$request->input('order'):'created_at';
-        $filter = !empty($request->input('filter'))?[$request->input('filter')]:Tags::all()->pluck('id')->toArray();
+        $filter = !empty($request->input('filter'))?[$request->input('filter')]:'';
         if($search == ''||$request->input('search') == null){
-            $activities = Activity::with('items')
-                ->with('tags')
-                ->whereHas('tags' ,function($i) use ($filter) {
-                    $i->whereIn('tags.id',$filter);
-                })
-                ->orderBy($order,'desc')
-                ->paginate('5');
+            if (!empty($filter)){
+
+                $activities = Activity::with('items')
+                    ->with('tags')
+                    ->whereHas('tags' ,function($i) use ($filter) {
+                        $i->whereIn('tags.id',$filter);
+                    })
+                    ->orderBy($order,'desc')
+                    ->paginate('5');
+            }else{
+                $activities = Activity::with('items')
+                    ->with('tags')
+                    ->orderBy($order,'desc')
+                    ->paginate('5');
+            }
         }else{
-            $activities = Activity::with(['items'=>function($i) use ($request) {
-                $i->where('item_name','like','%'.$request->input('search').'%');
-            }])
-                ->with(['tags' => function($i) use ($filter) {
-                    $i->where('id','in',$filter);
-                }])
+            if (empty($filter)){
+            $activities = Activity::with('items')
+                ->whereHas('items' ,function($i) use ($search) {
+                    $i->where('item_name','like','%'.$search.'%');
+                })
+                ->with('tags')
                 ->orderBy($order,'desc')
-                ->where('activity_name','like','%'.$search.'%')
+                ->orWhere('activity_name','like','%'.$search.'%')
                 ->paginate('5');
+            }else{
+                $activities = Activity::with('items')
+                    ->whereHas('items' ,function($i) use ($search) {
+                        $i->where('item_name','like','%'.$search.'%');
+                    })
+                    ->with('tags')
+                    ->andWhereHas('tags' ,function($i) use ($filter) {
+                        $i->whereIn('tags.id',$filter);
+                    })
+                    ->orderBy($order,'desc')
+                    ->orWhere('activity_name','like','%'.$search.'%')
+                    ->paginate('5');
+            }
         }
 
 
