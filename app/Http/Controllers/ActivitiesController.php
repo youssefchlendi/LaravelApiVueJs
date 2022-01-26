@@ -201,6 +201,23 @@ class ActivitiesController extends Controller
         ], 204);
     }
 
+    public function tagDestroy($tag_id)
+    {
+        $tag = Tags::find($tag_id);
+        if ($tag) {
+            $tag->delete();
+        } else {
+            return response()->json([
+                'type' => 'Tag',
+                'message' => 'Not Found'
+            ], 404);
+        }
+        return response()->json([
+            'type' => 'Tag',
+            'message' => 'Tag deleted'
+        ], 204);
+    }
+
     public function activityItemDestroy($activity_id, $item_id)
     {
         $item = Item::where('activity_id', $activity_id)->where('id', $item_id)->first();

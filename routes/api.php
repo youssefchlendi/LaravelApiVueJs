@@ -29,7 +29,10 @@ Route::prefix('/v1')->namespace('App\Http\Controllers')->group(function(){
     Route::delete('activities/{activity_id}','ActivitiesController@activityDestroy');
     Route::delete('activities/{activity_id}/items/{item_id}','ActivitiesController@activityItemDestroy');
 
-    Route::post('tags/add', 'ActivitiesController@storeTag');
     Route::get('tags/', 'ActivitiesController@showTags');
+    
+    Route::post('tags/add', 'ActivitiesController@storeTag');
+
+    Route::delete('tags/{tag_id}', 'ActivitiesController@tagDestroy');
 
 });
