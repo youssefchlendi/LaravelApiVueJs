@@ -166,6 +166,24 @@ class ActivitiesController extends Controller
         }
     }
 
+    public function itemUpdateAll(Request $request)
+    {
+        $item = Item::query()->update(['status' => $request->input('status')]);
+        if ($item) {
+            return response()->json([
+                'data' => [
+                    'type' => 'items',
+                    'message' => 'Update Success'
+                ]
+            ], 201);
+        } else {
+            return response()->json([
+                'type' => 'items',
+                'message' => 'Not Found'
+            ], 404);
+        }
+    }
+
     public function getActivityById($activity_id)
     {
         $activity = Activity::with('items')->find($activity_id);
@@ -198,6 +216,14 @@ class ActivitiesController extends Controller
                 'message' => 'Not Found'
             ], 404);
         }
+        return response()->json([
+            'type' => 'activities',
+            'message' => 'Activity deleted'
+        ], 204);
+    }
+
+    public function activityDestroyAll(){
+        $activity = Activity::all()->delete();
         return response()->json([
             'type' => 'activities',
             'message' => 'Activity deleted'

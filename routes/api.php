@@ -25,15 +25,18 @@ Route::prefix('/v1')->namespace('App\Http\Controllers')->group(function(){
 
     Route::put('activities/{activity_id}','ActivitiesController@activityUpdate');
     Route::put('activities/{activity_id}/items/{item_id}','ActivitiesController@itemUpdate');
+    Route::put('items','ActivitiesController@itemUpdateAll');
 
     Route::delete('activities/{activity_id}','ActivitiesController@activityDestroy');
+    Route::delete('activities/','ActivitiesController@activityDestroyAll');
     Route::delete('activities/{activity_id}/items/{item_id}','ActivitiesController@activityItemDestroy');
 
     Route::get('tags/', 'ActivitiesController@showTags');
     
     Route::post('tags/add', 'ActivitiesController@storeTag');
+    Route::post('activities/{activity_id}/tags/{tag_id}', 'ActivitiesController@linkTag');
 
     Route::delete('tags/{tag_id}', 'ActivitiesController@tagDestroy');
+    
 
-    Route::post('activities/{activity_id}/tags/{tag_id}', 'ActivitiesController@linkTag');
 });

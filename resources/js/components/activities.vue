@@ -21,8 +21,14 @@
       <b-container class="bv-example-row">
           <b-row class="text-center">
           <b-col cols="8">
-              <button type="button" class="btn btn-primary float-start" @click="activity.activity_name=''" data-bs-toggle="modal" data-bs-target="#exampleModal">
+              <button type="button" class="btn btn-primary mx-1 float-start"  @click="activity.activity_name=''" data-bs-toggle="modal" data-bs-target="#exampleModal">
                   New Activity
+              </button>
+              <button type="button" class="btn mx-1 float-start" :class="allValid?'btn-success':'btn-warning'" @click="validateTask">
+                  {{ this.allValid?'Validate all':'Unvalidate all' }}
+              </button>
+              <button type="button" class="btn btn-danger mx-1 float-start" @click="activity.activity_name=''" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                  Delete all
               </button>
           </b-col>
           <b-col>
@@ -196,6 +202,7 @@ export default {
             sort:'',
             label:'',
             tags:[],
+            allValid:false,
         }
     },
     created(){
@@ -218,6 +225,13 @@ export default {
                 .then(res => {
                     this.activities = res.data.data;
                     vm.makePagination(res.data);
+                    let arr=[]
+                    this.activities.forEach((a)=>{
+                        a.items.forEach((a)=>{
+                            arr.push(a.status);
+                        })
+                    });
+                    this.allValid=arr.every(a=>a);
                 })
                 .catch(err => console.log(err))
         },
@@ -288,6 +302,21 @@ export default {
             this.activity_id = activity.id;
             this.activity.tags = activity.tags;
             this.activity.activity_name = activity.activity_name;
+        },
+        validateTask(){
+             fetch('api/v1/items/', {
+                    method: 'put',
+                    body: JSON.stringify({'status':!this.allValid}),
+                    headers: {
+                        "Content-Type": 'application/json'
+                    }
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                            this.fetchActivities();
+                        }
+                    )
+                    .catch(err => console.log(err))
         },
         checkFormValidity() {
             const valid = this.$refs.form.checkValidity()
