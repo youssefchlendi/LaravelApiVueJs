@@ -60,12 +60,12 @@
                               </div>
                                <ul>
                                             <li v-for="tag in tags" class="container" :key="tag.id">
+                                                <input class="form-check-input" type="checkbox" @change="attachLabel(tag.id)"  role="switch" id="flexSwitchCheckDefault">
                                                 <div class="row shadow-sm">
                                                     <div class="col-6">
                                                 {{ tag.tag_name }}
                                                     </div>
                                                     <div class="col-6">
-
                                                 <button type="button" class="float-end btn" @click="deleteLabel(tag.id)" ><b-icon icon="trash" scale="1" variant="danger"></b-icon></button>
                                                     </div>
                                                 </div>
@@ -130,6 +130,9 @@
           <div>
               <h3 class="text-white bg-danger text-center" :class="show(activity)?'d-none':'d-block'">Passed The Date</h3>
               <h3 class="d-inline">{{activity.activity_name}}</h3>
+              <b-dropdown id="dropdown-left" text="Tags" variant="secondary" class="m-2">
+                <b-dropdown-item v-for="tag in activity.tags" :key="tag.id">{{tag.tag_name}}</b-dropdown-item>
+            </b-dropdown>
               <b-icon class="float-end" v-b-tooltip.hover="{ variant: 'success',title:'Activity completed',placement:'topright'}" v-if="activity.items.every(e => e.status)||!activity.items.length" icon="check-square" scale="2" variant="success"></b-icon>
               <b-icon class="float-end" v-b-tooltip.hover="{ variant: 'danger',title:'Activity not completed',placement:'topright'}" v-else icon="x-square" scale="2" variant="danger"></b-icon>
           </div>
@@ -449,6 +452,19 @@ export default {
                     })
                     .catch(err => console.log(err));
             }
+        },
+        attachLabel(labelId){
+            fetch('api/v1/activities/'+ this.activity_id+'/tags/'+labelId, {
+                    method: 'post'
+                })
+                    .then(res => res.json())
+                    .then(data => {;
+                            this.fetchLabels();
+                        }
+                    )
+                    .catch(err => console.log(err));
+                    this.fetchActivities();
+                    this.fetchLabels();
         }
     }
 }

@@ -91,12 +91,14 @@ class ActivitiesController extends Controller
         $order = $request->input('order')?$request->input('order'):'created_at';
         if($search == ''||$request->input('search') == null){
             $activities = Activity::with('items')
+                ->with('tags')
                 ->orderBy($order,'desc')
                 ->paginate('5');
         }else{
             $activities = Activity::with(['items'=>function($i) use ($request) {
                 $i->where('item_name','like','%'.$request->input('search').'%');
             }])
+                ->with('tags')
                 ->orderBy($order,'desc')
                 ->where('activity_name','like','%'.$search.'%')
                 ->paginate('5');
