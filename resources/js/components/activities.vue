@@ -1,5 +1,6 @@
 <template>
   <div>
+      <!-- TODO:ADD filter by tags -->
       <h2>
           Activities
       </h2>
@@ -32,6 +33,11 @@
               </button>
           </b-col>
           <b-col>
+                <b-dropdown id="dropdown-1" text="Filter by tags" class="m-md-2 ml-auto float-end">
+                    <b-dropdown-item :active="filter==''" @click="filterBy('')">All</b-dropdown-item>
+                  <b-dropdown-item v-for='tag in tags' :key="tag.id" :active="filter==tag.id" @click="filterBy(tag.id)">{{ tag.tag_name }}</b-dropdown-item>
+              </b-dropdown>
+
               <b-dropdown id="dropdown-1" text="Sort by" class="m-md-2 ml-auto float-end">
                   <b-dropdown-item :active="sort=='priority'" @click="fetchActivities('/api/v1/activities','priority')">Priority</b-dropdown-item>
                   <b-dropdown-item :active="sort=='created_at'" @click="fetchActivities('/api/v1/activities','created_at')">Created</b-dropdown-item>
@@ -59,7 +65,7 @@
                               <label for="">Tags</label>
                               <div class="shadow-lg bg-white input-group mb-2 d-block">
                                   <div class="input-group mb-2">
-                                  <input type="text" class="form-control" placeholder="Add new label" v-model="label" >
+                                  <input type="text" class="form-control" placeholder="Add new tag" v-model="label" >
                                     <div class="input-group-append">
                                   <button type="button" @click="addLabel" class="btn btn-success">Add</button>
                                       </div>
@@ -203,6 +209,7 @@ export default {
             label:'',
             tags:[],
             allValid:false,
+            filter:'',
         }
     },
     created(){
@@ -216,7 +223,7 @@ export default {
             page_url = this.search!=''?'/api/v1/activities':page_url;
             fetch(page_url, {
                 method: 'POST',
-                body: JSON.stringify({'search':this.search,'order':sort}),
+                body: JSON.stringify({'search':this.search,'order':sort,'filter':this.filter}),
                 headers: {
                     "Content-Type": 'application/json'
                 }
@@ -532,6 +539,10 @@ export default {
         },
         pushTo(id){
             this.activity.tags.indexOf(id)==-1?this.activity.tags.push(id):this.activity.tags.splice(this.activity.tags.indexOf(id)!=-1,1);
+        },
+        filterBy(id){
+            this.filter=id;
+            this.fetchActivities();
         }
 
     }
