@@ -3,7 +3,7 @@
       <!-- TODO:ADD filter by tags -->
       <h2>
           Activities
-      </h2>
+      </h2>  
       <form action="javascript:" class="search-bar">
           <input
               id="search"
@@ -72,7 +72,7 @@
                               </div>
                                <ul>
                                             <li v-for="tag in tags" class="container" :key="tag.id">
-                                                <input class="form-check-input checks" :checked="containsObject(tag)&&edit" type="checkbox" @change="pushTo(tag.id)"  role="switch" id="flexSwitchCheckDefault">
+                                                <input class="form-check-input checks" :checked="containsObject(tag)" type="checkbox" @change="pushTo(tag.id)"  role="switch" id="flexSwitchCheckDefault">
                                                 <div class="row shadow-sm">
                                                     <div class="col-6">
                                                 {{ tag.tag_name }}
@@ -90,7 +90,7 @@
                   </div>
                   <div class="modal-footer">
                       <button type="button" class="btn btn-secondary" @click='resetModal1' data-bs-dismiss="modal">Close</button>
-                      <button type="submit" class="btn btn-primary " data-bs-dismiss="modal">Add</button>
+                      <button type="button" class="btn btn-primary " @click="addActivity" data-bs-dismiss="modal" >Add</button>
                   </div>
                   </form>
               </div>
@@ -142,9 +142,8 @@
           <div>
               <h3 class="text-white bg-danger text-center" :class="show(activity)?'d-none':'d-block'">Passed The Date</h3>
               <h3 class="d-inline">{{activity.activity_name}}</h3>
-              <b-dropdown id="dropdown-left" v-if="activity.tags.length!=0" text="Tags" variant="secondary" class="m-2">
-                <b-dropdown-item v-for="tag in activity.tags" :key="tag.id">{{tag.tag_name}}</b-dropdown-item>
-            </b-dropdown>
+             <span v-for="tag in activity.tags" :key="tag.id" class="badge bg-info badge-info p-2 m-2                                                         " >{{tag.tag_name}}</span>
+             
               <b-icon class="float-end" v-b-tooltip.hover="{ variant: 'success',title:'Activity completed',placement:'topright'}" v-if="activity.items.every(e => e.status)||!activity.items.length" icon="check-square" scale="2" variant="success"></b-icon>
               <b-icon class="float-end" v-b-tooltip.hover="{ variant: 'danger',title:'Activity not completed',placement:'topright'}" v-else icon="x-square" scale="2" variant="danger"></b-icon>
           </div>
@@ -307,8 +306,8 @@ export default {
                             this.activity.tags.forEach((tag) => {isNaN(tag)?'':this.attachLabel(tag);})
 
                             this.fetchActivities();
-                            this.edit = false;
                             this.reset();
+                            this.edit = false;
                         }
                     )
                     .catch(err => console.log(err))
@@ -523,7 +522,7 @@ export default {
             var i;
             let list=this.activity.tags;
             for (i = 0; i < list.length; i++) {
-                if (list[i].id == obj.id) {
+                if (list[i].id == obj.id&&this.edit==true) {
                     return true;
                 }
             }
