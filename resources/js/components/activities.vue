@@ -60,7 +60,7 @@
                               </div>
                                <ul>
                                             <li v-for="tag in tags" class="container" :key="tag.id">
-                                                <input class="form-check-input" type="checkbox" @change="attachLabel(tag.id)"  role="switch" id="flexSwitchCheckDefault">
+                                                <input class="form-check-input" :checked="containsObject(tag)" type="checkbox" @change="attachLabel(tag.id)"  role="switch" id="flexSwitchCheckDefault">
                                                 <div class="row shadow-sm">
                                                     <div class="col-6">
                                                 {{ tag.tag_name }}
@@ -77,7 +77,7 @@
                           </div>
                   </div>
                   <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      <button type="button" class="btn btn-secondary" @click='resetModal1' data-bs-dismiss="modal">Close</button>
                       <button type="submit" class="btn btn-primary">Add</button>
                   </div>
                   </form>
@@ -130,7 +130,7 @@
           <div>
               <h3 class="text-white bg-danger text-center" :class="show(activity)?'d-none':'d-block'">Passed The Date</h3>
               <h3 class="d-inline">{{activity.activity_name}}</h3>
-              <b-dropdown id="dropdown-left" text="Tags" variant="secondary" class="m-2">
+              <b-dropdown id="dropdown-left" v-if="activity.tags.length!=0" text="Tags" variant="secondary" class="m-2">
                 <b-dropdown-item v-for="tag in activity.tags" :key="tag.id">{{tag.tag_name}}</b-dropdown-item>
             </b-dropdown>
               <b-icon class="float-end" v-b-tooltip.hover="{ variant: 'success',title:'Activity completed',placement:'topright'}" v-if="activity.items.every(e => e.status)||!activity.items.length" icon="check-square" scale="2" variant="success"></b-icon>
@@ -178,6 +178,7 @@ export default {
               id:'',
               activity_name:'',
                 priority:'low',
+                tags:[],
             },
             item:{
                 id:'',
@@ -285,6 +286,7 @@ export default {
             this.activity.id = activity.id;
             this.activity.priority = activity.priority;
             this.activity_id = activity.id;
+            this.activity.tags = activity.tags;
             this.activity.activity_name = activity.activity_name;
         },
         checkFormValidity() {
@@ -295,6 +297,9 @@ export default {
         resetModal() {
             this.item.item_name = ''
             this.itemNameState = null
+        },
+        resetModal1() {
+            
         },
         handleOk(bvModalEvt) {
             // Prevent modal from closing
@@ -465,7 +470,19 @@ export default {
                     .catch(err => console.log(err));
                     this.fetchActivities();
                     this.fetchLabels();
+        },
+         containsObject(obj) {
+            var i;
+            let list=this.activity.tags;
+            for (i = 0; i < list.length; i++) {
+                if (list[i].id == obj.id) {
+                    return true;
+                }
+            }
+
+            return false;
         }
+
     }
 }
 </script>
