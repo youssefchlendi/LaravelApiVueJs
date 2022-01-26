@@ -90,17 +90,22 @@ class ActivitiesController extends Controller
     {
         $search = $request->input('search')?$request->input('search'):'';
         $order = $request->input('order')?$request->input('order'):'created_at';
-        $filter = $request->input('filter');
+        $filter = !empty($request->input('filter'))?[$request->input('filter')]:Tags::all()->pluck('id')->toArray();
         if($search == ''||$request->input('search') == null){
             $activities = Activity::with('items')
                 ->with('tags')
+                ->whereHas('tags' ,function($i) use ($filter) {
+                    $i->whereIn('tags.id',$filter);
+                })
                 ->orderBy($order,'desc')
                 ->paginate('5');
         }else{
             $activities = Activity::with(['items'=>function($i) use ($request) {
                 $i->where('item_name','like','%'.$request->input('search').'%');
             }])
-                ->with('tags')
+                ->with(['tags' => function($i) use ($filter) {
+                    $i->where('id','in',$filter);
+                }])
                 ->orderBy($order,'desc')
                 ->where('activity_name','like','%'.$search.'%')
                 ->paginate('5');
