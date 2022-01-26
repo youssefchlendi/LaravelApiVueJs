@@ -21,13 +21,13 @@
       <b-container class="bv-example-row">
           <b-row class="text-center">
           <b-col cols="8">
-              <button type="button" class="btn btn-primary mx-1 float-start"  @click="activity.activity_name=''" data-bs-toggle="modal" data-bs-target="#exampleModal">
+              <button type="button" class="btn btn-primary mx-1 float-start"  @click="resetModal1" data-bs-toggle="modal" data-bs-target="#exampleModal">
                   New Activity
               </button>
-              <button type="button" class="btn mx-1 float-start" :class="allValid?'btn-success':'btn-warning'" @click="validateTask">
-                  {{ this.allValid?'Validate all':'Unvalidate all' }}
+              <button type="button" class="btn mx-1 float-start" :disabled="activities.length==0" :class="!allValid?'btn-success':'btn-warning'" @click="validateTask">
+                  {{ !this.allValid?'Validate all':'Unvalidate all' }}
               </button>
-              <button type="button" class="btn btn-danger mx-1 float-start" @click="activity.activity_name=''" data-bs-toggle="modal" data-bs-target="#exampleModal">
+              <button type="button" class="btn btn-danger mx-1 float-start" :disabled="activities.length==0" @click="deleteAll">
                   Delete all
               </button>
           </b-col>
@@ -66,7 +66,7 @@
                               </div>
                                <ul>
                                             <li v-for="tag in tags" class="container" :key="tag.id">
-                                                <input class="form-check-input" :checked="containsObject(tag)" type="checkbox" @change="attachLabel(tag.id)"  role="switch" id="flexSwitchCheckDefault">
+                                                <input class="form-check-input checks" :checked="containsObject(tag)&&edit" type="checkbox" @change="pushTo(tag.id)"  role="switch" id="flexSwitchCheckDefault">
                                                 <div class="row shadow-sm">
                                                     <div class="col-6">
                                                 {{ tag.tag_name }}
@@ -84,7 +84,7 @@
                   </div>
                   <div class="modal-footer">
                       <button type="button" class="btn btn-secondary" @click='resetModal1' data-bs-dismiss="modal">Close</button>
-                      <button type="submit" class="btn btn-primary">Add</button>
+                      <button type="submit" class="btn btn-primary " data-bs-dismiss="modal">Add</button>
                   </div>
                   </form>
               </div>
@@ -255,6 +255,17 @@ export default {
                     .catch(err => console.log(err));
             }
         },
+        deleteAll(){
+            if (confirm('Delete all ')) {
+                fetch('api/v1/activities/', {method: 'delete'})
+                    .then(res => {
+                        this.fetchActivities();
+                    })
+                    .then(data => {
+                    })
+                    .catch(err => console.log(err));
+            }
+        },
         addActivity() {
             if (!this.edit) {
                 fetch('api/v1/activities/add', {
@@ -267,7 +278,11 @@ export default {
                     .then(res => res.json())
                     .then(data => {
                             this.activity.activity_name = '';
+                            this.activity_id=data.data.id;
+                            this.activity.tags.forEach((tag) => {isNaN(tag)?'':this.attachLabel(tag);})
+                            this.activity_id='';
                             this.fetchActivities();
+                            this.reset();
                         }
                     )
                     .catch(err => console.log(err))
@@ -282,18 +297,15 @@ export default {
                     .then(res => res.json())
                     .then(data => {
                             this.activity.name = '';
+                            this.activity.tags.forEach((tag) => {isNaN(tag)?'':this.attachLabel(tag);})
+
                             this.fetchActivities();
                             this.edit = false;
+                            this.reset();
                         }
                     )
                     .catch(err => console.log(err))
             }
-            document.getElementById('exampleModal').classList.remove('show');
-            const modalBackdrops = document.getElementsByClassName('modal-backdrop');
-
-            // remove opened modal backdrop
-            document.body.removeChild(modalBackdrops[0]);
-
         },
         editActivity(activity) {
             this.edit = true;
@@ -328,7 +340,8 @@ export default {
             this.itemNameState = null
         },
         resetModal1() {
-            
+            this.edit=false;
+            this.activity.activity_name=this.activity_id='';
         },
         handleOk(bvModalEvt) {
             // Prevent modal from closing
@@ -491,7 +504,6 @@ export default {
             fetch('api/v1/activities/'+ this.activity_id+'/tags/'+labelId, {
                     method: 'post'
                 })
-                    .then(res => res.json())
                     .then(data => {;
                             this.fetchLabels();
                         }
@@ -508,8 +520,18 @@ export default {
                     return true;
                 }
             }
-
             return false;
+        },
+        reset(){
+            this.activity.id='';
+            this.activity.activity_name='';
+            this.activity.priority='low';
+            this.activity.tags=[];
+            this.activity_id='';
+            document.querySelectorAll('.checks').forEach((a)=>{a.removeAttribute('checked')})
+        },
+        pushTo(id){
+            this.activity.tags.indexOf(id)==-1?this.activity.tags.push(id):this.activity.tags.splice(this.activity.tags.indexOf(id)!=-1,1);
         }
 
     }
