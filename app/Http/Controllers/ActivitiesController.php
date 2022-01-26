@@ -6,6 +6,7 @@ use App\Models\Activity;
 use App\Models\Item;
 use App\Models\Tags;
 use Illuminate\Http\Request;
+use DB;
 
 class ActivitiesController extends Controller
 {
@@ -223,7 +224,7 @@ class ActivitiesController extends Controller
     }
 
     public function activityDestroyAll(){
-        $activity = Activity::all()->delete();
+        $activity = Activity::whereNotNull('id')->delete();
         return response()->json([
             'type' => 'activities',
             'message' => 'Activity deleted'
@@ -258,7 +259,10 @@ class ActivitiesController extends Controller
 
             $activity->tags()->attach($tag_id);
         }
-    }
+        return response()->json([
+            'type' => 'Tag',
+            'message' => 'Tag attached'
+        ], 204);    }
 
     public function activityItemDestroy($activity_id, $item_id)
     {
