@@ -35,4 +35,5 @@ Route::prefix('/v1')->namespace('App\Http\Controllers')->group(function(){
 
     Route::delete('tags/{tag_id}', 'ActivitiesController@tagDestroy');
 
+    Route::post('activities/{activity_id}/tags/{tag_id}', 'ActivitiesController@linkTag');
 });

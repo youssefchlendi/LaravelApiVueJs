@@ -218,6 +218,21 @@ class ActivitiesController extends Controller
         ], 204);
     }
 
+    public function linkTag($activity_id,$tag_id)
+    {
+
+        $activity = Activity::find($activity_id);
+        
+        if ($activity->tags()->where('tag_id','=',$tag_id)->count()!=0){
+            $activity->tags()->detach($tag_id);
+        }else {
+
+            $activity->tags()->attach($tag_id);
+        }
+        
+
+    }
+
     public function activityItemDestroy($activity_id, $item_id)
     {
         $item = Item::where('activity_id', $activity_id)->where('id', $item_id)->first();
