@@ -21,14 +21,14 @@
       <b-container class="bv-example-row">
           <b-row class="text-center">
           <b-col cols="8">
-              <button type="button" class="btn btn-primary float-start" @click="activity.activity_name=''"data-bs-toggle="modal" data-bs-target="#exampleModal">
+              <button type="button" class="btn btn-primary float-start" @click="activity.activity_name=''" data-bs-toggle="modal" data-bs-target="#exampleModal">
                   New Activity
               </button>
           </b-col>
           <b-col>
               <b-dropdown id="dropdown-1" text="Sort by" class="m-md-2 ml-auto float-end">
-                  <b-dropdown-item :active="sort=='priority'"@click="fetchActivities('/api/v1/activities','priority')">Priority</b-dropdown-item>
-                  <b-dropdown-item :active="sort=='created_at'"@click="fetchActivities('/api/v1/activities','created_at')">Created</b-dropdown-item>
+                  <b-dropdown-item :active="sort=='priority'" @click="fetchActivities('/api/v1/activities','priority')">Priority</b-dropdown-item>
+                  <b-dropdown-item :active="sort=='created_at'" @click="fetchActivities('/api/v1/activities','created_at')">Created</b-dropdown-item>
               </b-dropdown>
           </b-col>
           </b-row>
@@ -50,11 +50,35 @@
                               <select class="form-select" v-model="activity.priority" aria-label="Priority">
                                   <option v-for="priority in priorities" :selected="activity.priority==priority" :key="priority.id" :value="priority">{{priority}}</option>
                               </select>
+                              <label for="">Tags</label>
+                              <div class="shadow-lg bg-white input-group mb-2 d-block">
+                                  <div class="input-group mb-2">
+                                  <input type="text" class="form-control" placeholder="Add new label" v-model="label" >
+                                    <div class="input-group-append">
+                                  <button type="button" @click="addLabel" class="btn btn-success">Add</button>
+                                      </div>
+                              </div>
+                               <ul>
+                                            <li v-for="tag in tags" class="container" :key="tag.id">
+                                                <div class="row shadow-sm">
+                                                    <div class="col-6">
+                                                {{ tag.tag_name }}
+                                                    </div>
+                                                    <div class="col-6">
+
+                                                <button type="button" class="float-end btn" @click="deleteLabel(tag.id)" ><b-icon icon="trash" scale="1" variant="danger"></b-icon></button>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                      </ul>
+                                      </div>
+
+                              
                           </div>
                   </div>
                   <div class="modal-footer">
                       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                      <button type="submit" class="btn btn-primary">Addd</button>
+                      <button type="submit" class="btn btn-primary">Add</button>
                   </div>
                   </form>
               </div>
@@ -166,6 +190,8 @@ export default {
             search:'',
             priorities:['low','medium','high','DANGER'],
             sort:'',
+            label:'',
+            tags:[],
         }
     },
     created(){
@@ -174,6 +200,7 @@ export default {
     methods: {
         fetchActivities(page_url = '/api/v1/activities',sort='created_at') {
             let vm = this;
+            this.fetchLabels();
             this.sort=sort;
             page_url = this.search!=''?'/api/v1/activities':page_url;
             fetch(page_url, {
@@ -385,6 +412,44 @@ export default {
         show(activity){
           return !activity.items.some(e => this.isPassed(e.dead_line));
         },
+        addLabel(){
+            fetch('api/v1/tags/add', {
+                    method: 'post',
+                    body: JSON.stringify({'tag_name':this.label}),
+                    headers: {
+                        "Content-Type": 'application/json'
+                    }
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                            this.label = '';
+                            this.fetchLabels();
+
+                        }
+                    )
+                    .catch(err => console.log(err))
+        },
+        fetchLabels(){
+                fetch('/api/v1/tags', {
+                method: 'GET'
+            })
+                .then(res => res.json())
+                .then(res => {
+                    this.tags = res.data;
+                })
+                .catch(err => console.log(err))
+        },
+        deleteLabel(labelId){
+            if (confirm('Delete tag ' + labelId)) {
+                fetch('api/v1/tags/' + labelId , {method: 'delete'})
+                    .then(res => {
+                        this.fetchActivities();
+                    })
+                    .then(data => {
+                    })
+                    .catch(err => console.log(err));
+            }
+        }
     }
 }
 </script>
