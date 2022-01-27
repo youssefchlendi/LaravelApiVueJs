@@ -147,7 +147,6 @@ class ActivitiesController extends Controller
         ], 200);
     }
 
-
     public function activityUpdate(Request $request, $activity_id)
     {
         $activity = Activity::find($activity_id);
@@ -262,23 +261,24 @@ class ActivitiesController extends Controller
         $tag = Tags::find($tag_id);
         if ($tag) {
             $tag->delete();
+            return response()->json([
+                'type' => 'Tag',
+                'message' => 'khralel'
+            ], 204);
         } else {
             return response()->json([
                 'type' => 'Tag',
                 'message' => 'Not Found'
             ], 404);
         }
-        return response()->json([
-            'type' => 'Tag',
-            'message' => 'Tag deleted'
-        ], 204);
+
     }
 
     public function linkTag($activity_id,$tag_id)
     {
 
         $activity = Activity::find($activity_id);
-        
+
         if ($activity->tags()->where('tag_id','=',$tag_id)->count()!=0){
             $activity->tags()->detach($tag_id);
         }else {
@@ -288,7 +288,8 @@ class ActivitiesController extends Controller
         return response()->json([
             'type' => 'Tag',
             'message' => 'Tag attached'
-        ], 204);    }
+        ], 204);
+    }
 
     public function activityItemDestroy($activity_id, $item_id)
     {
