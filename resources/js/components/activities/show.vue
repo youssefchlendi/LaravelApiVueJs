@@ -48,7 +48,7 @@ export default {
         activities : Array,
         pagination : Object,
     },
-    emits:['updateStatus','deleteTask','editTask','editActivity','deleteActivity','update'],
+    emits:['updateStatus','deleteTask','editTask','editActivity','deleteActivity','update','fetchActivities'],
     methods : {
         isPassed(date) {
             let d = new Date();
@@ -75,6 +75,9 @@ export default {
         },
         update(activityId){
             this.$emit('update', activityId);
+        },
+        fetchActivities(url){
+            this.$emit('fetchActivities', url);
         }
     }
 

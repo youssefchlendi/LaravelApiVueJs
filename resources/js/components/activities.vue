@@ -45,8 +45,9 @@
           </b-col>
           </b-row>
       </b-container>
+      <activityForm @addLabel="addLabel" @addActivity="addActivity" :edit="edit" :tags="tags" :oldActivity="activity" />
       <!-- Modal -->
-      <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <!-- <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog">
               <div class="modal-content">
                   <div class="modal-header">
@@ -84,8 +85,6 @@
                                             </li>
                                       </ul>
                                       </div>
-
-
                           </div>
                   </div>
                   <div class="modal-footer">
@@ -95,7 +94,7 @@
                   </form>
               </div>
           </div>
-      </div>
+      </div> -->
       <taskForm @handleSubmit="handleSubmit" />
       <!-- <div>
           <b-modal
@@ -124,7 +123,7 @@
               </form>
           </b-modal>
       </div> -->
-        <showActivities   :activities="activities" :pagination="pagination" @updateStatus="updateStatus" @deleteTask="deleteTask" @editTask="editTask" @editActivity="editActivity" @deleteActivity="deleteActivity" @update="update" />
+        <showActivities   :activities="activities" :pagination="pagination" @updateStatus="updateStatus" @deleteTask="deleteTask" @editTask="editTask" @editActivity="editActivity" @deleteActivity="deleteActivity" @update="update" @fetchActivities="fetchActivities" />
       <!--<form class="mb-3" @submit.prevent="addActivity">
           <div class="form-group mb-2">
               <input type="text" class="form-control" placeholder="Activity Name" v-model="activity.activity_name">
@@ -175,11 +174,13 @@
 <script>
     import showActivities from  './activities/show.vue';
     import taskForm from './activities/taskForm.vue';
+    import activityForm from './activities/activityForm.vue';
 export default {
     name: "activities",
     components:{
         showActivities,
         taskForm,
+        activityForm,
     },
     data(){
         return {
@@ -203,7 +204,6 @@ export default {
             search:'',
             priorities:['low','medium','high','DANGER'],
             sort:'',
-            label:'',
             tags:[],
             allValid:false,
             filter:'',
@@ -271,11 +271,11 @@ export default {
                     .catch(err => console.log(err));
             }
         },
-        addActivity() {
+        addActivity(activity) {
             if (!this.edit) {
                 fetch('api/v1/activities/add', {
                     method: 'post',
-                    body: JSON.stringify(this.activity),
+                    body: JSON.stringify(activity),
                     headers: {
                         "Content-Type": 'application/json'
                     }
@@ -284,7 +284,7 @@ export default {
                     .then(data => {
                             this.activity.activity_name = '';
                             this.activity_id=data.data.id;
-                            this.activity.tags.forEach((tag) => {isNaN(tag)?'':this.attachLabel(tag);})
+                            activity.tags.forEach((tag) => {isNaN(tag)?'':this.attachLabel(tag);})
                             this.activity_id='';
                             this.fetchActivities();
                             this.reset();
@@ -292,9 +292,9 @@ export default {
                     )
                     .catch(err => console.log(err))
             } else {
-                fetch('api/v1/activities/' + this.activity_id, {
+                fetch('api/v1/activities/' + this.activity.id, {
                     method: 'put',
-                    body: JSON.stringify(this.activity),
+                    body: JSON.stringify(activity),
                     headers: {
                         "Content-Type": 'application/json'
                     }
@@ -303,7 +303,6 @@ export default {
                     .then(data => {
                             this.activity.name = '';
                             this.activity.tags.forEach((tag) => {isNaN(tag)?'':this.attachLabel(tag);})
-
                             this.fetchActivities();
                             this.reset();
                             this.edit = false;
@@ -437,17 +436,16 @@ export default {
 
             return [year, month, day].join('-');
         },
-        addLabel(){
+        addLabel(label){
             fetch('api/v1/tags/add', {
                     method: 'post',
-                    body: JSON.stringify({'tag_name':this.label}),
+                    body: JSON.stringify({'tag_name':label}),
                     headers: {
                         "Content-Type": 'application/json'
                     }
                 })
                     .then(res => res.json())
                     .then(data => {
-                            this.label = '';
                             this.fetchLabels();
 
                         }
