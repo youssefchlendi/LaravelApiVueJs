@@ -10,6 +10,9 @@ use DB;
 
 class ActivitiesController extends Controller
 {
+    public function __construct(){
+        $this->middleware('apiAuth');
+    }
     public function store(Request $request)
     {
         $activity_name = $request->input('activity_name');
