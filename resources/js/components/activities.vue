@@ -3,7 +3,7 @@
       <!-- TODO:ADD filter by tags -->
       <h2>
           Activities
-      </h2>  
+      </h2>
       <form action="javascript:" class="search-bar">
           <input
               id="search"
@@ -85,7 +85,7 @@
                                       </ul>
                                       </div>
 
-                              
+
                           </div>
                   </div>
                   <div class="modal-footer">
@@ -131,19 +131,19 @@
               </form>
           </b-modal>
       </div>
-
+        <showActivities   :activities="activities" :pagination="pagination" @updateStatus="updateStatus" @deleteTask="deleteTask" @editTask="editTask" @editActivity="editActivity" @deleteActivity="deleteActivity" @update="update" />
       <!--<form class="mb-3" @submit.prevent="addActivity">
           <div class="form-group mb-2">
               <input type="text" class="form-control" placeholder="Activity Name" v-model="activity.activity_name">
           </div>
           <button type="submit" class="btn btn-primary btn-block" >save</button>
       </form>-->
-      <div class="card card-body  my-2" v-for="activity in activities"  :key="activity.id">
+      <!-- <div class="card card-body  my-2" v-for="activity in activities"  :key="activity.id">
           <div>
               <h3 class="text-white bg-danger text-center" :class="show(activity)?'d-none':'d-block'">Passed The Date</h3>
               <h3 class="d-inline">{{activity.activity_name}}</h3>
              <span v-for="tag in activity.tags" :key="tag.id" class="badge bg-info badge-info p-2 m-2                                                         " >{{tag.tag_name}}</span>
-             
+
               <b-icon class="float-end" v-b-tooltip.hover="{ variant: 'success',title:'Activity completed',placement:'topright'}" v-if="activity.items.every(e => e.status)||!activity.items.length" icon="check-square" scale="2" variant="success"></b-icon>
               <b-icon class="float-end" v-b-tooltip.hover="{ variant: 'danger',title:'Activity not completed',placement:'topright'}" v-else icon="x-square" scale="2" variant="danger"></b-icon>
           </div>
@@ -175,13 +175,17 @@
                   <a  @click="fetchActivities(pagination.next_page_url)" class="btn page-link" >Next</a>
               </li>
           </ul>
-      </nav>
+      </nav> -->
   </div>
 </template>
 
 <script>
+    import showActivities from  './activities/show.vue';
 export default {
     name: "activities",
+    components:{
+        showActivities
+    },
     data(){
         return {
             activities: [],
@@ -217,15 +221,16 @@ export default {
     methods: {
         fetchActivities(page_url = '/api/v1/activities',sort='created_at') {
             let vm = this;
+            let headersi = new Headers();
+            headersi.append('Content-Type', 'application/json');
+            headersi.append('Authorization','auth');
             this.fetchLabels();
             this.sort=sort;
             page_url = this.search!=''?'/api/v1/activities':page_url;
             fetch(page_url, {
                 method: 'POST',
                 body: JSON.stringify({'search':this.search,'order':sort,'filter':this.filter}),
-                headers: {
-                    "Content-Type": 'application/json'
-                }
+                headers: headersi
             })
                 .then(res => res.json())
                 .then(res => {
@@ -460,14 +465,6 @@ export default {
 
             return [year, month, day].join('-');
         },
-        isPassed(date) {
-            let d = new Date();
-            let d1 = new Date(date);
-            return d1 < d;
-        },
-        show(activity){
-          return !activity.items.some(e => this.isPassed(e.dead_line));
-        },
         addLabel(){
             fetch('api/v1/tags/add', {
                     method: 'post',
@@ -542,6 +539,9 @@ export default {
         filterBy(id){
             this.filter=id;
             this.fetchActivities();
+        },
+        update(id){
+            this.activity_id=id;
         }
 
     }

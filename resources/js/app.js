@@ -37,6 +37,7 @@ window.Fire = new Vue();
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
 
 Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+// Vue.component('show-activities', require('./components/activities/show.vue').default);
 
 Vue.component('navbar',require('./components/navbar.vue').default);
 Vue.component('activities',require('./components/activities.vue').default);
