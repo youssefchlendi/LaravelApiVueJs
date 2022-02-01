@@ -96,15 +96,8 @@
               </div>
           </div>
       </div>
-      <div>
-          <b-modal id="-1" title="Add task">
-              <form class="mb-3" @submit.prevent="addItem">
-                  <div class="form-group mb-2">
-                      <input type="text" class="form-control" placeholder="Task Name" v-model="item.item_name" required>
-                  </div>
-                  <button type="submit" class="btn btn-primary btn-block" >save</button>
-              </form>
-          </b-modal>
+      <taskForm @handleSubmit="handleSubmit" />
+      <!-- <div>
           <b-modal
               id="modal-1"
               ref="modal"
@@ -130,7 +123,7 @@
                   </b-form-group>
               </form>
           </b-modal>
-      </div>
+      </div> -->
         <showActivities   :activities="activities" :pagination="pagination" @updateStatus="updateStatus" @deleteTask="deleteTask" @editTask="editTask" @editActivity="editActivity" @deleteActivity="deleteActivity" @update="update" />
       <!--<form class="mb-3" @submit.prevent="addActivity">
           <div class="form-group mb-2">
@@ -181,10 +174,12 @@
 
 <script>
     import showActivities from  './activities/show.vue';
+    import taskForm from './activities/taskForm.vue';
 export default {
     name: "activities",
     components:{
-        showActivities
+        showActivities,
+        taskForm,
     },
     data(){
         return {
@@ -202,7 +197,6 @@ export default {
                 status: 0,
                 dead_line:'',
             },
-            itemNameState: null,
             activity_id:'',
             pagination:{},
             edit:false,
@@ -341,36 +335,14 @@ export default {
                     )
                     .catch(err => console.log(err))
         },
-        checkFormValidity() {
-            const valid = this.$refs.form.checkValidity()
-            this.itemNameState = valid
-            return valid
-        },
-        resetModal() {
-            this.item.item_name = ''
-            this.itemNameState = null
-        },
         resetModal1() {
             this.edit=false;
             this.activity.activity_name=this.activity_id='';
         },
-        handleOk(bvModalEvt) {
-            // Prevent modal from closing
-            bvModalEvt.preventDefault()
-            // Trigger submit handler
-            this.handleSubmit()
-        },
-        handleSubmit() {
-            // Exit when the form isn't valid
-            if (!this.checkFormValidity()) {
-                return
-            }
+        handleSubmit(item) {
             // Push the name to submitted names
+            this.item=item
             this.addTask();
-            // Hide the modal manually
-            this.$nextTick(() => {
-                this.$bvModal.hide('modal-1')
-            })
         },
         addTask() {
             this.item.dead_line = this.formatDate(this.item.dead_line);
